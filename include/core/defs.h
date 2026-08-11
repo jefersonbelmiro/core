@@ -8,6 +8,14 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#define BACKEND_RAYLIB 1u << 0
+#define BACKEND_SDL    2u << 1
+#define BACKEND_GODOT  2u << 2
+
+#ifndef BACKEND
+#define BACKEND BACKEND_RAYLIB
+#endif
+
 #ifndef DEBUG_PRINT_LOC
 #define DEBUG_PRINT_LOC 0
 #endif
@@ -25,10 +33,6 @@
 
 #ifndef DEBUG_MEMORY_USAGE
 #define DEBUG_MEMORY_USAGE 0
-#endif
-
-#ifndef GAME_ANIMATED_STATIC_ENTITIES
-#define GAME_ANIMATED_STATIC_ENTITIES 0
 #endif
 
 #ifndef APP_CUSTOM_CURSOR
@@ -96,6 +100,7 @@ typedef uint16_t  u16;
 typedef uint32_t  u32;
 typedef uint64_t  u64;
 typedef uintptr_t uptr;
+typedef struct vec2_t vec2_t;
 
 typedef u16 entity_id_t;
 typedef u16 grid_idx_t;
@@ -130,13 +135,7 @@ typedef enum {
   APP_EXITED,
 } app_state_t;
 
-typedef enum {
-  SCENE_NONE,
-  SCENE_MENU,
-  SCENE_MAIN,
-  SCENE_EDITOR,
-  SCENE_COUNT,
-} scene_type_t;
+typedef enum scene_type_t scene_type_t;
 
 typedef enum {
   SCENE_TRANSITION_NONE,
@@ -174,14 +173,6 @@ enum {
 
 #define IDX_NONE    ((grid_idx_t)UINT16_MAX)  // sentinel: no valid cell index
 #define ENTITY_NONE ((entity_id_t)UINT16_MAX) // sentinel: no valid entity id
-
-#define MATCH_FLASH_DURATION 0.4f
-
-// match cache: per-cell bits telling which of its 4 edges are matched
-#define EDGE_TOP     (1u << 0)
-#define EDGE_RIGHT   (1u << 1)
-#define EDGE_BOTTOM  (1u << 2)
-#define EDGE_LEFT    (1u << 3)
 
 API void printn(const char* format, ...) 
 {
