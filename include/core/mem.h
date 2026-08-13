@@ -139,3 +139,10 @@ API void mem_copy(void *source, void *target, size_t size)
 {
   memcpy(target, source, size);
 }
+
+API void mem_move(void *source, void *target, size_t size)
+{
+  memmove(target, source, size);
+}
+
+

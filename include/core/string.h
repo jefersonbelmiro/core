@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/mem.h"
 #include "defs.h"
 #include <stdbool.h>
 #include <stddef.h>
@@ -50,6 +51,45 @@ API bool is_empty(char c)
 API bool is_space(char c)
 {
   return c == ' ' || c == '\t';
+}
+
+API void trim_start(char *string, char delim)
+{
+  u32 start = 0;
+  while (string[start] != '\0' && string[start] == delim) {
+    start++;
+  }
+  if (start > 0) {
+    u32 len = strlen(&string[start]);
+    mem_move(string, &string[start], len + 1);
+  }
+}
+
+API void trim_end(char *string, char delim)
+{
+  u32 len = strlen(string);
+  if (len == 0) return;
+  u32 end = len - 1;
+  while (end >= 0 && string[end] == delim) {
+    end--;
+  }
+  string[end + 1] = 0x0;
+}
+
+API void trim(char *string, char delim)
+{
+  trim_end(string, delim);
+  trim_start(string, delim);
+}
+
+API void slugify(char *string)
+{
+  while (*string != '\0') {
+    if (!is_alpha_num(*string)) {
+      *string = '-';
+    }
+    string++;
+  }
 }
 
 API const char* format_text(const char *format, ...)

@@ -11,11 +11,11 @@
 #define DEPS "-L./build/raylib/raylib -lraylib -lm -lX11"
 
 typedef struct {
-  const char *name;
-  const char *version;
-  const char *backend;
-  const char *backend_inc_path;
-  const char *backend_lib_path;
+  char *name;
+  char *version;
+  char *backend;
+  char *backend_inc_path;
+  char *backend_lib_path;
 } project_config_t;
 
 void show_cmd_line_help()
@@ -55,6 +55,7 @@ void project_init()
     for (u16 i = 0; i < tokens.key_value_count; i++) {
       if (strcmp(tokens.key_value[i].name, "name") == 0) {
         cfg.name = tokens.key_value[i].value;
+        slugify(cfg.name);
       }
       else if (strcmp(tokens.key_value[i].name, "version") == 0) {
         cfg.version = tokens.key_value[i].value;
@@ -64,34 +65,60 @@ void project_init()
       }
       else if (strcmp(tokens.key_value[i].name, "backend_inc_path") == 0) {
         cfg.backend_inc_path = tokens.key_value[i].value;
+        trim_end(cfg.backend_inc_path, '/');
       }
       else if (strcmp(tokens.key_value[i].name, "backend_lib_path") == 0) {
         cfg.backend_lib_path = tokens.key_value[i].value;
+        trim_end(cfg.backend_lib_path, '/');
       }
     }
 
     printn("[project]");
-    printn(" name: %s", cfg.name);
-    printn(" version: %s", cfg.version);
-    printn(" backend: %s", cfg.backend);
-    printn(" backend_inc_path: %s", cfg.backend_inc_path);
-    printn(" backend_lib_path: %s", cfg.backend_lib_path);
+    printn(" name             : %s", cfg.name);
+    printn(" version          : %s", cfg.version);
+    printn(" backend          : %s", cfg.backend);
+    printn(" backend_inc_path : %s", cfg.backend_inc_path);
+    printn(" backend_lib_path : %s", cfg.backend_lib_path);
 
-    // create fiels
-    if (!io_file_exists("scenes")) {
-      so_exec("cp core/scenes scenes");
+    if (!io_file_exists("include")) {
+      io_mkdir("include");
+    }
+
+    if (!io_file_exists("include/scenes")) {
+      so_exec("cp -rv core/include/scenes include/scenes");
+    }
+    if (!io_file_exists("include/app")) {
+      so_exec("cp -rv core/include/app include/app");
+    }
+    if (!io_file_exists("compile_flags.txt")) {
+      const char *content = format_text(
+        "-std=c11\n"
+        "-I./core/include\n"
+        "-I./include\n"
+        "-I%s\n"
+        "-DDEBUG=1\n"
+        "-DLOG_LEVEL=5\n"
+        "-DDEBUG_MEMORY_USAGE=1\n"
+        "-DARENA_FALLBACK_MALLOC=1\n"
+        "-DHOT_RELOAD=1\n"
+        "-Wall\n"
+        "-Wextra\n", 
+        cfg.backend_inc_path
+      );
+      printn("content:\n%s", content);
+      io_save_file_data("compile_flags.txt", content, strlen(content));
     }
 
     return;
   }
 
   const char content[] = {
-    "name: main\n"
-    "version: 0.0.1:\n"
-    "backend: raylib\n"
-    "backend_inc_path  : ../raylib/src/\n"
-    "backend_lib_path  : ../raylib/build/raylib\n"
-    "backend_build_path: ../raylib/build\n"
+    "name               : main\n"
+    "version            : 0.0.1:\n"
+    "backend            : raylib\n"
+    "backend_inc_path   : ./../raylib/src/\n"
+    "backend_lib_path   : ./../raylib/build/raylib\n"
+    "backend_build_path : ./../raylib/build\n"
   };
   io_save_file_data("./project.cfg", content, strlen(content));
   printn(
