@@ -1,8 +1,8 @@
 #pragma once
 
+#include "app/defs.h"
 #include "core/app.h"
 #include "core/arena.h"
-#include "core/defs.h"
 
 typedef struct {
   char pad;
@@ -12,6 +12,10 @@ API menu_scene_t* menu_scene_init()
 {
   arena_t *arena = app_scene_arena();
   menu_scene_t *scene = arena_push(arena, menu_scene_t, 1);
+
+  vec2_t vec = {20.33, 99.666923992};
+  printn("menu_scene_init");
+  printn(" - vec: (x:%g, y:%g)", vec.x, vec.y);
   return scene;
 }
 
@@ -51,6 +55,7 @@ API void menu_scene_free(menu_scene_t *scene)
 
 API void menu_scene_process(menu_scene_t *scene, float delta)
 {
+  app_quit();
   (void) scene; (void) delta;
 }
 

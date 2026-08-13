@@ -1,6 +1,8 @@
 #pragma once
 
+#include "core/arena.h"
 #include "core/defs.h"
+#include "core/io.h"
 #include "string.h"
 #include <stddef.h>
 
@@ -22,25 +24,25 @@ typedef struct {
 } cfg_token_array_t;
 
 typedef struct {
-  cfg_token_key_value_t  key_value_tokens[CFG_TOKEN_MAX_KEY_VALUE_COUNT];
-  cfg_token_array_t      array_tokens[CFG_TOKEN_MAX_ARRAY_COUNT];
-  u16                    key_value_tokens_count;
-  u16                    array_tokens_count;
+  cfg_token_key_value_t  key_value[CFG_TOKEN_MAX_KEY_VALUE_COUNT];
+  cfg_token_array_t      array[CFG_TOKEN_MAX_ARRAY_COUNT];
+  u16                    key_value_count;
+  u16                    array_count;
 } cfg_tokens_t;
 
 API void cfg_print_tokens(cfg_tokens_t *tokens)
 {
   printn("[tokens]");
   printn("");
-  for (int i = 0; i < tokens->key_value_tokens_count; i++) {
-    printn("  %s: %s", tokens->key_value_tokens[i].name, tokens->key_value_tokens[i].value);
+  for (int i = 0; i < tokens->key_value_count; i++) {
+    printn("  %s: %s", tokens->key_value[i].name, tokens->key_value[i].value);
   }
 
   printn("");
-  for (int i = 0; i < tokens->array_tokens_count; i++) {
-    printn("  %s:", tokens->array_tokens[i].name);
-    for (int ci = 0; ci < tokens->array_tokens[i].count; ci++) {
-      printn("    - %s", tokens->array_tokens[i].values[ci]);
+  for (int i = 0; i < tokens->array_count; i++) {
+    printn("  %s:", tokens->array[i].name);
+    for (int ci = 0; ci < tokens->array[i].count; ci++) {
+      printn("    - %s", tokens->array[i].values[ci]);
     }
   }
 }
@@ -50,11 +52,11 @@ API bool cfg__is_key_value(const char *line)
   while (*line != '\0') {
     if (*line == ':') {
       line++;
-      while (is_empty(*line)) {
+      while (is_space(*line)) {
         line++;
         continue;
       }
-      if (is_alpha_num(*line)) {
+      if (!is_empty(*line)) {
         return true;
       }
       break;
@@ -85,10 +87,9 @@ API void cfg__make_key_value(const char *line, cfg_token_key_value_t *token)
       continue;
     }
 
-    while (is_alpha_num(*line) || is_space(*line)) {
+    while (*line != '\0' && *line != '\n' && *line != ' ' && *line != ':') {
       token->name[char_index++] = *line;
       line++;
-      continue;
     }
 
     token->name[char_index] = '\0';
@@ -216,7 +217,7 @@ API void cfg_parse(unsigned char *file_content, cfg_tokens_t *tokens)
     while (*line != '\0' && is_empty(*line)) {
       line++;
     }
-    if (line[0] == '\0') {
+    if (line[0] == '\0' || line[0] == '#') {
       continue;
     }
 
@@ -224,26 +225,29 @@ API void cfg_parse(unsigned char *file_content, cfg_tokens_t *tokens)
     if (cfg__is_key_value(line)) {
       cfg_token_key_value_t token = {0};
       cfg__make_key_value(line, &token);
-      tokens->key_value_tokens[tokens->key_value_tokens_count++] = token;
+      tokens->key_value[tokens->key_value_count++] = token;
     }
     else if (cfg__is_array(line)) {
       cfg_token_array_t token = {0};
       cfg__make_array(lines, line_count, i, &token);
-      tokens->array_tokens[tokens->array_tokens_count++] = token;
+      tokens->array[tokens->array_count++] = token;
     }
 
   }
 }
 
-// API void cfg_file_parse(const char *path, cfg_tokens_t *tokens)
-// {
-//   int data_size = 0;
-//   unsigned char *buffer = platform_load_file(path, &data_size);
-//
-//   if (!data_size) {
-//     printn("[ERROR][cfg_file_parse] invalid data from '%s'", path);
-//     return;
-//   }
-//
-//   cfg_parse(buffer, tokens);
-// }
+API void cfg_file_parse(const char *path, cfg_tokens_t *tokens, arena_t *arena)
+{
+  if (!io_file_exists(path)) {
+    return;
+  }
+  int data_size = 0;
+  unsigned char *buffer = io_load_file_data(path, &data_size, arena);
+
+  if (!data_size) {
+    printn("[ERROR][cfg_file_parse] invalid data from '%s'", path);
+    return;
+  }
+
+  cfg_parse(buffer, tokens);
+}

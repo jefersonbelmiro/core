@@ -6,6 +6,11 @@
 #include "scenes/main.h"
 #include "scenes/menu.h"
 
+API void app_scene_setup()
+{
+  app_set_scene(SCENE_MENU);
+}
+
 API bool app_scene_entering() 
 {
   app_t *app = app_ptr();

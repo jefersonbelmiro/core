@@ -3,14 +3,11 @@
 // #define SINFL_IMPLEMENTATION
 // #define SDEFL_IMPLEMENTATION
 
-#include "backend/boot.h"
+#include "core/boot.h"
 
 int main()
 {
-  backend_start();
-
-
-  backend_stop();
+  core_init();
 
   return 0;
 }

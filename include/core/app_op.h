@@ -1,13 +1,13 @@
 #pragma once
 
 #include "app/scenes.h"
+#include "backend/api.h"
 #include "core/app.h"
 #include "core/arena.h"
 #include "core/defs.h"
 #include "core/input.h"
 #include "core/timer.h"
 #include "core/tween.h"
-#include "backend/raylib.h"
 
 API app_t* app_ptr()
 {
@@ -54,8 +54,6 @@ API void app_init(void)
   app->arena = arena;
   // keep scene arena to end, for cache locality(i think)
   app->scene_arena = arena_create_sub(arena, APP_SCENE_ARENA_SIZE, "scene");
-
-  backend_init();
 }
 
 API void app_fini()
@@ -77,8 +75,6 @@ API void app_start(void)
 
 API void app_quit()
 {
-  backend_fini();
-
   app_t *app = app_ptr();
   if (app->state != APP_EXITING) {
     app->state = APP_EXITING;

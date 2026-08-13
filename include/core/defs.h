@@ -8,13 +8,12 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#define SINFL_IMPLEMENTATION
+#define SDEFL_IMPLEMENTATION
+
 #define BACKEND_RAYLIB 1u << 0
 #define BACKEND_SDL    2u << 1
 #define BACKEND_GODOT  2u << 2
-
-#ifndef BACKEND
-#define BACKEND BACKEND_RAYLIB
-#endif
 
 #ifndef DEBUG_PRINT_LOC
 #define DEBUG_PRINT_LOC 0
@@ -29,10 +28,6 @@
 
 #ifndef LOG_LEVEL
 #define LOG_LEVEL 3
-#endif
-
-#ifndef DEBUG_MEMORY_USAGE
-#define DEBUG_MEMORY_USAGE 0
 #endif
 
 #ifndef APP_CUSTOM_CURSOR
@@ -100,7 +95,7 @@ typedef uint16_t  u16;
 typedef uint32_t  u32;
 typedef uint64_t  u64;
 typedef uintptr_t uptr;
-typedef struct vec2_t vec2_t;
+// typedef struct vec2_t vec2_t;
 
 typedef u16 entity_id_t;
 typedef u16 grid_idx_t;

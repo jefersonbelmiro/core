@@ -1,12 +1,19 @@
 #pragma once
 
 #include "backend/api.h"
+#include "core/app.h"
+#include "core/app_op.h"
+#include "core/defs.h"
+#include "raylib.h"
+#include <time.h>
 
-typedef vec2_t Vector2;
+// int  GetScreenWidth(void);
+// int  GetScreenHeight(void);
+// bool IsWindowResized(void);
+// bool WindowShouldClose(void);
+// bool IsWindowFullscreen(void);
+// bool IsKeyPressed(int key);
 
-int  GetScreenWidth(void);
-int  GetScreenHeight(void);
-bool IsWindowResized(void);
 
 API screen_size_t backend_get_screen_size()
 {
@@ -21,12 +28,101 @@ API bool backend_is_window_resized()
   return IsWindowResized();
 }
 
+API void backend_main_loop()
+
+{
+  //   if (unlikely(!platform_is_ready())) {
+  //   BeginDrawing();
+  //   ClearBackground(BLACK);
+  //   EndDrawing();
+  //   return;
+  // }
+
+#if HOT_RELOAD
+  // hot_process(GetFrameTime());
+#endif
+
+  // app_process(GetFrameTime());
+  app_process(1.0/60.0);
+
+  // BeginDrawing();
+#if APP_WINDOW_TRANSPARENT
+  ClearBackground(BLANK);
+  // SetWindowOpacity(0.8);
+#else
+  // ClearBackground(BLACK);
+#endif
+  app_draw();
+  // draw_fps();
+
+#if APP_WINDOW_UNDECORATED
+  if (!IsWindowFullscreen()) {
+    DrawRectangleLinesEx(
+      (Rectangle){ 0, 0, GetScreenWidth(), GetScreenHeight(), },
+      2, COLOR_PRIMARY_DARK_2
+    );
+  }
+#endif
+
+  // EndDrawing();
+}
+
 API void backend_init()
 {
+  printn("[raylib] backend_init()");
 
+  srand(time(NULL));
+
+  SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_TOPMOST | FLAG_WINDOW_RESIZABLE);
+  SetTraceLogLevel(LOG_WARNING);
+  InitWindow(800, 600, "main"); // @fixme: fix name
+  SetExitKey(KEY_NULL);
+}
+
+API void backend_main()
+{
+  printn("[raylib] backend_main()");
+
+#if defined(PLATFORM_WEB)
+  emscripten_set_main_loop(backend_main_loop, 0, 1);
+#else
+
+  app_t *app = app_ptr();
+  while (app->state != APP_EXITED) {
+    if (WindowShouldClose()) app_quit();
+
+    // fullscreen toggle
+    if (IsKeyPressed(KEY_F11)) {
+      if (!IsWindowFullscreen()) {
+        int monitor = GetCurrentMonitor();
+        SetWindowSize(GetMonitorWidth(monitor), GetMonitorHeight(monitor));
+        ToggleFullscreen();
+      } else {
+        ToggleFullscreen();
+        SetWindowSize(APP_WINDOW_WIDTH, APP_WINDOW_HEIGHT);
+      }
+    }
+
+    backend_main_loop();
+  }
+
+  backend_fini();
+
+#endif
 }
 
 API void backend_fini()
 {
+  printn("[raylib] backend_fini()");
 
+#if DEBUG_MEMORY_USAGE
+  arena_print_stats(app_ptr()->arena->debug_id);
+  // arena_print_track(app->arena->debug_id, false);
+#endif
+  app_fini();
+#if DEBUG_MEMORY_USAGE
+  mem_print_stats();
+#endif
+  // CloseWindow();
 }
+
