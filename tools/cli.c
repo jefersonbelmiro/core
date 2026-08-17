@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 {
   if (argc > 1 && (str_eq(argv[1], "-s") || str_eq(argv[1], "--self"))) {
     so_exec(CC " core/tools/cli.c -I./core/include -std=c11 -o core/bin/cli");
-    return 0;
+    // return 0;
   }
 
   bool fresh = !io_file_exists("include/app/defs.h");

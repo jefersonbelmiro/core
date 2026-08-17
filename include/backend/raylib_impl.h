@@ -6,18 +6,11 @@
 #include "core/arena.h"
 #include "core/defs.h"
 #include "core/mem.h"
+#include "platform/api.h"
 #include "raylib.h"
 #include <time.h>
 
 #define COLOR_PRIMARY_DARK_2 (Color){ 24, 24, 32, 255 }
-
-// int  GetScreenWidth(void);
-// int  GetScreenHeight(void);
-// bool IsWindowResized(void);
-// bool WindowShouldClose(void);
-// bool IsWindowFullscreen(void);
-// bool IsKeyPressed(int key);
-
 
 API screen_size_t get_screen_size()
 {
@@ -34,26 +27,25 @@ API bool is_window_resized()
 
 API void backend_main_loop()
 {
-  //   if (unlikely(!platform_is_ready())) {
-  //   BeginDrawing();
-  //   ClearBackground(BLACK);
-  //   EndDrawing();
-  //   return;
-  // }
+  if (unlikely(!platform_is_ready())) {
+    BeginDrawing();
+    ClearBackground(BLACK);
+    EndDrawing();
+    return;
+  }
 
 #if HOT_RELOAD
   // hot_process(GetFrameTime());
 #endif
 
-  // app_process(GetFrameTime());
-  app_process(1.0/60.0);
+  app_process(GetFrameTime());
 
-  // BeginDrawing();
+  BeginDrawing();
 #if APP_WINDOW_TRANSPARENT
   ClearBackground(BLANK);
   // SetWindowOpacity(0.8);
 #else
-  // ClearBackground(BLACK);
+  ClearBackground(BLACK);
 #endif
   app_draw();
   // draw_fps();
@@ -67,7 +59,7 @@ API void backend_main_loop()
   }
 #endif
 
-  // EndDrawing();
+  EndDrawing();
 }
 
 API void backend_init()

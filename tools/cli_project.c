@@ -54,7 +54,8 @@ void project_init()
 void project_build()
 {
   ensure_skeleton();
-  if (!platform_build()) {
+  backend_config_t b = backend_config();
+  if (!platform_build(&b)) {
     printn("[error] build failed");
   }
 }
@@ -68,7 +69,8 @@ void project_run()
 
 void project_backend_build()
 {
-  if (!platform_backend_build()) {
+  backend_config_t b = backend_config();
+  if (!platform_backend_build(&b)) {
     printn("[error] backend build failed");
   }
 }

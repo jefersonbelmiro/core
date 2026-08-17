@@ -180,10 +180,10 @@ API uint32_t package_def_append_music(package_def_t *pkg, char *id, char *path, 
 
 API void package_def_write_header(package_def_t *pkg, const char *name)
 {
-  const char *output_path = format_text("gen/%s_resources.h", name);
+  const char *output_path = str_format("gen/%s_resources.h", name);
 
   char output_dir[128];
-  path_dirname(output_path, output_dir, sizeof(output_dir));
+  str_path_dirname(output_path, output_dir, sizeof(output_dir));
 
   if (!io_file_exists(output_dir)) {
     if (!io_mkdir(output_dir)) {
@@ -330,7 +330,7 @@ API void package_def_make(package_def_t *def, package_t *out, arena_t *arena)
     out->textures[i] = (resource_texture_t){
       .buffer = buffer,
       .size = data_size,
-      .ext = path_file_extension(path),
+      .ext = str_path_file_extension(path),
     };
   }
 
@@ -343,7 +343,7 @@ API void package_def_make(package_def_t *def, package_t *out, arena_t *arena)
     out->atlas[i] = (resource_atlas_t){
       .buffer = buffer,
       .size = data_size,
-      .ext = path_file_extension(path),
+      .ext = str_path_file_extension(path),
       .cell_size = { def->atlas.cell_size[i][0], def->atlas.cell_size[i][1] },
     };
   }
@@ -357,7 +357,7 @@ API void package_def_make(package_def_t *def, package_t *out, arena_t *arena)
     out->fonts[i] = (resource_font_t){
       .buffer = buffer,
       .size = data_size,
-      .ext = path_file_extension(path),
+      .ext = str_path_file_extension(path),
     };
   }
 
@@ -370,7 +370,7 @@ API void package_def_make(package_def_t *def, package_t *out, arena_t *arena)
     out->sounds[i] = (resource_sound_t){
       .buffer = buffer,
       .size = data_size,
-      .ext = path_file_extension(path),
+      .ext = str_path_file_extension(path),
       .volume = def->sounds.volume[i],
       .max_active = def->sounds.max_active[i],
     };
@@ -385,7 +385,7 @@ API void package_def_make(package_def_t *def, package_t *out, arena_t *arena)
     out->musics[i] = (resource_music_t){
       .buffer = buffer,
       .size = data_size,
-      .ext = path_file_extension(path),
+      .ext = str_path_file_extension(path),
       .volume = def->musics.volume[i],
     };
   }
@@ -393,10 +393,10 @@ API void package_def_make(package_def_t *def, package_t *out, arena_t *arena)
 
 API void package_write(package_t *pkg, const char *name, arena_t *arena)
 {
-  const char *output_path = format_text("resources/packages/%s.pkg", name);
+  const char *output_path = str_format("resources/packages/%s.pkg", name);
 
   char output_dir[128];
-  path_dirname(output_path, output_dir, sizeof(output_dir));
+  str_path_dirname(output_path, output_dir, sizeof(output_dir));
 
   if (!io_file_exists(output_dir)) {
     if (!io_mkdir(output_dir)) {
@@ -501,7 +501,7 @@ API void package_write(package_t *pkg, const char *name, arena_t *arena)
 
 API void package_read(const char *name, package_t *pkg, arena_t *arena)
 {
-  const char *path = format_text("resources/packages/%s.pkg", name);
+  const char *path = str_format("resources/packages/%s.pkg", name);
 
   int data_size = 0;
   unsigned char *buffer = io_load_file_data(path, &data_size, arena);

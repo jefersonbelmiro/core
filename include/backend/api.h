@@ -11,7 +11,7 @@ typedef struct {
   const char *impl;
 } backend_config_t;
 
-API backend_config_t backend_config(void);
+API backend_config_t backend_config();
 API void             backend_init();
 API void             backend_fini();
 API void             backend_main();
