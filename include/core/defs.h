@@ -12,8 +12,8 @@
 #define SDEFL_IMPLEMENTATION
 
 #define BACKEND_RAYLIB 1u << 0
-#define BACKEND_SDL    2u << 1
-#define BACKEND_GODOT  2u << 2
+#define BACKEND_SDL    1u << 1
+#define BACKEND_GODOT  1u << 2
 
 #ifndef DEBUG_PRINT_LOC
 #define DEBUG_PRINT_LOC 0

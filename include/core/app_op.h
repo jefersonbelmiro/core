@@ -101,7 +101,7 @@ API void app_process(float delta)
   app_t *app = app_ptr();
   if (app->state == APP_EXITED) return;
 
-  app->screen_size = backend_get_screen_size();
+  app->screen_size = get_screen_size();
 
   tween_process(delta);
   timer_process(delta);
@@ -151,7 +151,7 @@ API void app_process(float delta)
     return;
   }
 
-  if (backend_is_window_resized()) {
+  if (is_window_resized()) {
     app_scene_sync(app->scene, SYNC_SIGNAL_WINDOW_RESIZED);
   }
 

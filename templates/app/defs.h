@@ -3,12 +3,12 @@
 #define APP_WINDOW_TRANSPARENT 1
 
 #ifndef DEBUG
-#define DEBUG 1
+#define DEBUG 0
 #endif
 
-#define BACKEND BACKEND_RAYLIB
-#define BACKEND_INC_PATH "./../../raylib/src/"
-#define BACKEND_LIB_PATH "./../../raylib/build/"
+#define BACKEND          RAYLIB
+#define BACKEND_INC_PATH ""
+#define BACKEND_LIB_PATH ""
 
 #ifndef DEBUG_MEMORY_USAGE
 #define DEBUG_MEMORY_USAGE 0

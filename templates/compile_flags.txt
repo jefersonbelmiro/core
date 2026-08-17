@@ -1,6 +1,6 @@
 -std=c11
 -I./include
--I./../../raylib/src/
+-I./../../raylib/src/ 
 -DDEBUG
 -DLOG_LEVEL=5
 -DDEBUG_MEMORY_USAGE

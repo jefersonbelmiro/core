@@ -15,7 +15,7 @@
 // bool IsKeyPressed(int key);
 
 
-API screen_size_t backend_get_screen_size()
+API screen_size_t get_screen_size()
 {
   return (screen_size_t) {
     .x = GetScreenWidth(),
@@ -23,7 +23,7 @@ API screen_size_t backend_get_screen_size()
   };
 }
 
-API bool backend_is_window_resized()
+API bool is_window_resized()
 {
   return IsWindowResized();
 }

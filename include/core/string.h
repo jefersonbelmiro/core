@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/arena.h"
 #include "core/mem.h"
 #include "defs.h"
 #include <stdbool.h>
@@ -27,33 +28,38 @@
 //    The strncmp function compares not more than n characters (characters that
 //    follow a null character are not compared) from the array pointed to by s1
 //    to the array pointed to by s2."
-API bool start_with(char *str, char *pre)
+API bool str_start_with(char *str, char *pre)
 {
-  return memcmp(pre, str, strlen(pre)) == 0;
+  return strncmp(pre, str, strlen(pre)) == 0;
 }
 
-API bool start_with_n(char *str, char *pre, size_t pre_length)
+API bool str_start_with_n(char *str, char *pre, size_t pre_length)
 {
-  return memcmp(pre, str, pre_length) == 0;
+  return strncmp(pre, str, pre_length) == 0;
 }
 
-API bool is_alpha_num(char c) 
+API bool str_eq(char *str, char *pre)
+{
+  return strcmp(pre, str) == 0;
+}
+
+API bool char_is_alpha_num(char c) 
 {
   return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') ||
          (c >= 'a' && c <= 'z');
 }
 
-API bool is_empty(char c) 
+API bool char_is_empty(char c) 
 {
   return c == ' ' || c == '\t' || c == '\n';
 }
 
-API bool is_space(char c)
+API bool char_is_space(char c)
 {
   return c == ' ' || c == '\t';
 }
 
-API void trim_start(char *string, char delim)
+API void str_trim_start(char *string, char delim)
 {
   u32 start = 0;
   while (string[start] != '\0' && string[start] == delim) {
@@ -65,7 +71,7 @@ API void trim_start(char *string, char delim)
   }
 }
 
-API void trim_end(char *string, char delim)
+API void str_trim_end(char *string, char delim)
 {
   u32 len = strlen(string);
   if (len == 0) return;
@@ -76,23 +82,32 @@ API void trim_end(char *string, char delim)
   string[end + 1] = 0x0;
 }
 
-API void trim(char *string, char delim)
+API void str_trim(char *string, char delim)
 {
-  trim_end(string, delim);
-  trim_start(string, delim);
+  str_trim_end(string, delim);
+  str_trim_start(string, delim);
 }
 
-API void slugify(char *string)
+API void str_slugify(char *string)
 {
   while (*string != '\0') {
-    if (!is_alpha_num(*string)) {
+    if (!char_is_alpha_num(*string)) {
       *string = '-';
     }
     string++;
   }
 }
 
-API const char* format_text(const char *format, ...)
+API char *str_dup(char *source, arena_t *arena)
+{
+  size_t len = strlen(source) + 1;
+  char *result = arena_push(arena, char, len);
+  strcpy(result, source);
+  result[len] = 0x0;
+  return result;
+}
+
+API const char* str_format(const char *format, ...)
 {
   static char buffers[MAX_TEXTFORMAT_BUFFERS][MAX_TEXT_BUFFER_LENGTH] = { 0 };
   static int index = 0;
@@ -121,7 +136,7 @@ API const char* format_text(const char *format, ...)
   return buffer;
 }
 
-API const char* path_filename(const char *path) 
+API const char* str_path_filename(const char *path) 
 {
   // find the last occurrence of the platform's separator
   const char *last_sep = strrchr(path, PATH_SEP);
@@ -134,7 +149,7 @@ API const char* path_filename(const char *path)
   return path;
 }
 
-API void path_dirname(const char *path, char *dir_out, size_t max_len) 
+API void str_path_dirname(const char *path, char *dir_out, size_t max_len) 
 {
   strncpy(dir_out, path, max_len);
   dir_out[max_len - 1] = '\0';
@@ -155,7 +170,7 @@ API void path_dirname(const char *path, char *dir_out, size_t max_len)
 
 // - name_out: buffer to store the filename without extension
 // - returns: pointer to the extension inside the original path (without the dot), or empty string ""
-API const char* path_split_filename(const char *path, char *name_out, size_t max_len) 
+API const char* str_path_split_filename(const char *path, char *name_out, size_t max_len) 
 {
   // 1. Find the start of the filename first
   const char *last_sep = strrchr(path, PATH_SEP);
@@ -185,15 +200,15 @@ API const char* path_split_filename(const char *path, char *name_out, size_t max
 }
 
 // helper to isolate filename start pointer
-API const char* path_filename_start(const char *path) 
+API const char* str_path_filename_start(const char *path) 
 {
   const char *last_sep = strrchr(path, PATH_SEP);
   return (last_sep != NULL) ? (last_sep + 1) : path;
 }
 
 // get filename WITHOUT extension (copies to output buffer)
-API void path_filename_no_ext(const char *path, char *name_out, size_t max_len) {
-  const char *filename = path_filename_start(path);
+API void str_path_filename_no_ext(const char *path, char *name_out, size_t max_len) {
+  const char *filename = str_path_filename_start(path);
   const char *last_dot = strrchr(filename, '.');
 
   // Only split if dot is found and it is not a hidden file dot (e.g., .gitignore)
@@ -212,9 +227,9 @@ API void path_filename_no_ext(const char *path, char *name_out, size_t max_len) 
 }
 
 // get extension ONLY (returns pointer inside original string, or empty string "")
-API const char* path_file_extension(const char *path) 
+API const char* str_path_file_extension(const char *path) 
 {
-  const char *filename = path_filename_start(path);
+  const char *filename = str_path_filename_start(path);
   const char *last_dot = strrchr(filename, '.');
 
   if (last_dot != NULL && last_dot != filename) {

@@ -1,22 +1,18 @@
+#if DEBUG
+#define DEBUG_MEMORY_USAGE 1
+#endif
+
 #include "core/arena.h"
-#include "core/cfg_parser.h"
 #include "core/defs.h"
 #include "core/io.h"
 #include "core/so.h"
 #include "core/string.h"
-#include <string.h>
 
 #define CC "gcc"
-#define INC "-I./core/include -I./include -I./../../raylib/src/"
+#define INC "-I./include -I./core/include -I./../../raylib/src/"
 #define DEPS "-L./build/raylib/raylib -lraylib -lm -lX11"
 
-typedef struct {
-  char *name;
-  char *version;
-  char *backend;
-  char *backend_inc_path;
-  char *backend_lib_path;
-} project_config_t;
+static arena_t *g_arena = NULL;
 
 void show_cmd_line_help()
 {
@@ -46,83 +42,52 @@ void compile(const char *source, const char *output)
 
 void project_init()
 {
-  if (io_file_exists("./project.cfg")) {
-    cfg_tokens_t tokens = {0};
-    arena_t *arena = arena_create(KB(10), "backend/build");
-    cfg_file_parse("./project.cfg", &tokens, arena);
-
-    project_config_t cfg = {0};
-    for (u16 i = 0; i < tokens.key_value_count; i++) {
-      if (strcmp(tokens.key_value[i].name, "name") == 0) {
-        cfg.name = tokens.key_value[i].value;
-        slugify(cfg.name);
-      }
-      else if (strcmp(tokens.key_value[i].name, "version") == 0) {
-        cfg.version = tokens.key_value[i].value;
-      }
-      else if (strcmp(tokens.key_value[i].name, "backend") == 0) {
-        cfg.backend = tokens.key_value[i].value;
-      }
-      else if (strcmp(tokens.key_value[i].name, "backend_inc_path") == 0) {
-        cfg.backend_inc_path = tokens.key_value[i].value;
-        trim_end(cfg.backend_inc_path, '/');
-      }
-      else if (strcmp(tokens.key_value[i].name, "backend_lib_path") == 0) {
-        cfg.backend_lib_path = tokens.key_value[i].value;
-        trim_end(cfg.backend_lib_path, '/');
-      }
-    }
-
-    printn("[project]");
-    printn(" name             : %s", cfg.name);
-    printn(" version          : %s", cfg.version);
-    printn(" backend          : %s", cfg.backend);
-    printn(" backend_inc_path : %s", cfg.backend_inc_path);
-    printn(" backend_lib_path : %s", cfg.backend_lib_path);
+  if (io_file_exists("./project.h")) {
+    printn("file exits ./project.h");
 
     if (!io_file_exists("include")) {
       io_mkdir("include");
     }
 
     if (!io_file_exists("include/scenes")) {
-      so_exec("cp -rv core/include/scenes include/scenes");
+      so_exec("cp -rv core/templates/scenes include/scenes");
     }
     if (!io_file_exists("include/app")) {
-      so_exec("cp -rv core/include/app include/app");
+      so_exec("cp -rv core/templates/app include/app");
     }
     if (!io_file_exists("compile_flags.txt")) {
-      const char *content = format_text(
-        "-std=c11\n"
-        "-I./core/include\n"
-        "-I./include\n"
-        "-I%s\n"
-        "-DDEBUG=1\n"
-        "-DLOG_LEVEL=5\n"
-        "-DDEBUG_MEMORY_USAGE=1\n"
-        "-DARENA_FALLBACK_MALLOC=1\n"
-        "-DHOT_RELOAD=1\n"
-        "-Wall\n"
-        "-Wextra\n", 
-        cfg.backend_inc_path
-      );
-      printn("content:\n%s", content);
-      io_save_file_data("compile_flags.txt", content, strlen(content));
+      so_exec("cp -rv core/templates/compile_flags.txt ./");
+      // const char *content = format_text(
+      //   "-std=c11\n"
+      //   "-I./core/include\n"
+      //   "-I./include\n"
+      //   "-I%s\n"
+      //   "-DDEBUG=1\n"
+      //   "-DLOG_LEVEL=5\n"
+      //   "-DDEBUG_MEMORY_USAGE=1\n"
+      //   "-DARENA_FALLBACK_MALLOC=1\n"
+      //   "-DHOT_RELOAD=1\n"
+      //   "-Wall\n"
+      //   "-Wextra\n", 
+      //   g_project.backend_inc_path
+      // );
+      // printn("content:\n%s", content);
+      // io_save_file_data("compile_flags.txt", content, strlen(content));
+    }
+
+    if (!io_file_exists("./src")) {
+      so_exec("cp -rv core/templates/src ./");
     }
 
     return;
   }
 
-  const char content[] = {
-    "name               : main\n"
-    "version            : 0.0.1:\n"
-    "backend            : raylib\n"
-    "backend_inc_path   : ./../raylib/src/\n"
-    "backend_lib_path   : ./../raylib/build/raylib\n"
-    "backend_build_path : ./../raylib/build\n"
-  };
-  io_save_file_data("./project.cfg", content, strlen(content));
+  so_exec("cp -rv core/templates/project.h ./");
+  if (!io_file_exists("compile_flags.txt")) {
+    so_exec("cp -rv core/templates/compile_flags.txt ./");
+  }
   printn(
-      "project.cfg created\n"
+      "project.h created\n"
       " - edit and run core/cli again to create initial files"
   );
 }
@@ -158,27 +123,36 @@ void run()
 
 int main(int argc, char **argv)
 {
+  g_arena = arena_create(KB(64), "main");
+
   if (argc == 1) {
     show_cmd_line_help();
     return 0;
   }
   for (int i = 0; i < argc; i++) {
-    if (start_with(argv[i], "-h") || start_with(argv[i], "--help")) {
+    if (str_eq(argv[i], "-h") || str_eq(argv[i], "--help")) {
       show_cmd_line_help();
       return 0;
     }
-    if (start_with(argv[i], "--project-init") || start_with(argv[i], "-pi")) {
+    if (str_eq(argv[i], "--project-init") || str_eq(argv[i], "-pi")) {
       project_init();
     }
-    if (start_with(argv[i], "--backend-build") || start_with(argv[i], "-bb")) {
+    if (str_eq(argv[i], "--backend-build") || str_eq(argv[i], "-bb")) {
       backend_build();
     }
-    if (start_with(argv[i], "--build") || start_with(argv[i], "-b")) {
+    if (str_eq(argv[i], "--build") || str_eq(argv[i], "-b")) {
       build();
     }
-    if (start_with(argv[i], "--run") || start_with(argv[i], "-r")) {
+    if (str_eq(argv[i], "--run") || str_eq(argv[i], "-r")) {
       run();
     }
   }
+
+#if DEBUG
+  arena_print_stats(g_arena->debug_id);
+  // arena_print_track(app->arena->debug_id, false);
+  mem_print_stats();
+#endif
+
   return 0;
 }
