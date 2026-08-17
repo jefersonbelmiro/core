@@ -2,7 +2,6 @@
 -I./include
 -I./core/include
 -I../raylib/src
--I.
 -DDEBUG
 -DLOG_LEVEL=5
 -DDEBUG_MEMORY_USAGE

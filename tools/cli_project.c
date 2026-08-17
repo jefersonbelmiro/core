@@ -48,7 +48,7 @@ void project_init()
 {
   ensure_skeleton();
   printn(" - project initialized");
-  printn(" - edit include/app/defs.h (name, binary, backend, paths)");
+  printn(" - edit include/app/defs.h (name, binary, ...)");
 }
 
 void project_build()
