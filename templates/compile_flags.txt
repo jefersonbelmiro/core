@@ -1,11 +1,13 @@
 -std=c11
 -I./include
 -I./core/include
--I@BACKEND_INC_PATH@
+-I../raylib/src
+-I.
 -DDEBUG
 -DLOG_LEVEL=5
 -DDEBUG_MEMORY_USAGE
 -DARENA_FALLBACK_MALLOC
 -DHOT_RELOAD
+-DPLATFORM=PLATFORM_LINUX
 -Wall
 -Wextra

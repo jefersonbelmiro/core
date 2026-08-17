@@ -1,11 +1,15 @@
 #pragma once
 
 #include "backend/api.h"
+#include "app/defs.h"
 #include "core/app.h"
-#include "core/app_op.h"
+#include "core/arena.h"
 #include "core/defs.h"
+#include "core/mem.h"
 #include "raylib.h"
 #include <time.h>
+
+#define COLOR_PRIMARY_DARK_2 (Color){ 24, 24, 32, 255 }
 
 // int  GetScreenWidth(void);
 // int  GetScreenHeight(void);
@@ -82,7 +86,7 @@ API void backend_main()
 {
   printn("[raylib] backend_main()");
 
-#if defined(PLATFORM_WEB)
+#if PLATFORM == PLATFORM_WEB
   emscripten_set_main_loop(backend_main_loop, 0, 1);
 #else
 

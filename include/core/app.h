@@ -27,5 +27,10 @@ API void           app_quit();
 API void           app_emit_hot_sync();
 API void           app_pause(bool paused);
 API void           app_set_scene(scene_type_t type);
+API void           app_init(void);
+API void           app_fini(void);
+API void           app_start(void);
+API void           app_process(float delta);
+API void           app_draw(void);
 
 

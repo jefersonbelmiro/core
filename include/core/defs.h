@@ -15,6 +15,14 @@
 #define BACKEND_SDL    2
 #define BACKEND_GODOT  3
 
+#define PLATFORM_LINUX      1
+#define PLATFORM_WEB        2
+#define PLATFORM_WINDOWS    3
+#define PLATFORM_STEAM_LINUX 4
+#define PLATFORM_STEAM_WIN  5
+#define PLATFORM_STEAM_MAC  6
+#define PLATFORM_ANDROID    7
+
 #ifndef DEBUG_PRINT_LOC
 #define DEBUG_PRINT_LOC 0
 #endif
@@ -95,7 +103,11 @@ typedef uint16_t  u16;
 typedef uint32_t  u32;
 typedef uint64_t  u64;
 typedef uintptr_t uptr;
-// typedef struct vec2_t vec2_t;
+
+typedef struct {
+  float x;
+  float y;
+} vec2_t;
 
 typedef u16 entity_id_t;
 typedef u16 grid_idx_t;

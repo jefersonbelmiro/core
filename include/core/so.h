@@ -20,9 +20,9 @@ API bool so_exec(const char *format, ...)
   }
   va_end(args);
 
-  printn("exec: %s", buffer);
   int error = system(buffer);
   if (error) {
+    printn("cmd: %s", buffer);
     return false;
   }
 
