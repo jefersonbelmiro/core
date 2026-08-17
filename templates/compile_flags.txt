@@ -1,7 +1,7 @@
 -std=c11
 -I./include
 -I./core/include
--I./../../raylib/src/ 
+-I@BACKEND_INC_PATH@
 -DDEBUG
 -DLOG_LEVEL=5
 -DDEBUG_MEMORY_USAGE
@@ -9,4 +9,3 @@
 -DHOT_RELOAD
 -Wall
 -Wextra
-

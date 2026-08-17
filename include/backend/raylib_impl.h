@@ -29,7 +29,6 @@ API bool is_window_resized()
 }
 
 API void backend_main_loop()
-
 {
   //   if (unlikely(!platform_is_ready())) {
   //   BeginDrawing();
@@ -75,7 +74,7 @@ API void backend_init()
 
   SetConfigFlags(FLAG_VSYNC_HINT | FLAG_WINDOW_UNDECORATED | FLAG_WINDOW_TOPMOST | FLAG_WINDOW_RESIZABLE);
   SetTraceLogLevel(LOG_WARNING);
-  InitWindow(800, 600, "main"); // @fixme: fix name
+  InitWindow(APP_WINDOW_WIDTH, APP_WINDOW_HEIGHT, APP_WINDOW_NAME);
   SetExitKey(KEY_NULL);
 }
 

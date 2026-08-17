@@ -3,8 +3,10 @@
 #include "app/defs.h"
 
 #if BACKEND == BACKEND_RAYLIB
-#include "backend/raylib.h"
-#else 
+#include "backend/raylib_impl.h"
+#elif BACKEND == BACKEND_SDL
+#include "backend/sdl_impl.h"
+#else
 #error "unsupported backend"
 #endif
 
